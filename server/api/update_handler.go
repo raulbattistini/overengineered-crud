@@ -2,20 +2,21 @@ package api
 
 import (
 	"encoding/json"
+	"server/enums"
 	"server/types"
 	"strconv"
 )
 
 func AtualizePostById(body []byte, id string) (types.DefaultResponseMessage[map[string]interface{}], error) {
 	var err error
-	var responseMsg types.RresponseMessage
+	var responseMsg enums.RresponseMessage
 	var status int
 	var response types.DefaultResponseMessage[map[string]interface{}]
 	var post types.Post
 
 	if err = json.Unmarshal(body, &post); err != nil {
-		responseMsg = types.BadRequestInvalidBody
-		status = types.MapToStatusCode(responseMsg)
+		responseMsg = enums.BadRequestInvalidBody
+		status = enums.MapToStatusCode(responseMsg)
 		message := map[string]interface{}{
 			"body_sent": string(body), // ideally should be cleaning and sanitizing input before using it
 			"contente":  "Invalid body provided",
@@ -28,8 +29,8 @@ func AtualizePostById(body []byte, id string) (types.DefaultResponseMessage[map[
 
 	fmtId, err := strconv.Atoi(id)
 	if err != nil {
-		responseMsg = types.InvalidIdFormat
-		status = types.MapToStatusCode(responseMsg)
+		responseMsg = enums.InvalidIdFormat
+		status = enums.MapToStatusCode(responseMsg)
 		message := map[string]interface{}{
 			"content": "Invalid id format ",
 		}
@@ -40,7 +41,7 @@ func AtualizePostById(body []byte, id string) (types.DefaultResponseMessage[map[
 	}
 	_ = fmtId
 
-	resp, err := GetPostByIdHandler(id)
+	resp, err := GetPostIdHandler(id)
 	respCode := resp.ResponseCode()
 	respStatus := resp.ResponseStatus()
 	respMessage := resp.ResponseMessage()
@@ -54,7 +55,7 @@ func AtualizePostById(body []byte, id string) (types.DefaultResponseMessage[map[
 		return response, err
 	}
 	switch respCode {
-	case types.NotFound:
+	case enums.NotFound:
 	default:
 	}
 
@@ -62,8 +63,8 @@ func AtualizePostById(body []byte, id string) (types.DefaultResponseMessage[map[
 		"previous_post_info": "there shuld be a get here before",
 		"message":            "Post updated",
 	}
-	status = types.MapToStatusCode(responseMsg)
-	responseMsg = types.NonAuthoritativeUpdated
+	status = enums.MapToStatusCode(responseMsg)
+	responseMsg = enums.NonAuthoritativeUpdated
 
 	response.Message = message
 	response.Status = status

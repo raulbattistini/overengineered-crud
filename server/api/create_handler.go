@@ -2,61 +2,79 @@ package api
 
 import (
 	"encoding/json"
-	"errors"
-	"log"
+	"server/db"
+	"server/enums"
+	"server/repositories"
+	"server/services"
 	"server/types"
+	"server/valiation"
 )
 
-func CreatePost(body []byte) (types.DefaultResponseMessage[interface{}], error) {
-	var err error
-	var responseMsg types.RresponseMessage
-	var status int
-	var response types.DefaultResponseMessage[interface{}]
+func CreateAPost(body []byte) (types.DefaultResponseMessage[types.Post], error) {
 	var post types.Post
-
-	if err = json.Unmarshal(body, &post); err != nil {
-		responseMsg = types.BadRequestInvalidBody
-		status = types.MapToStatusCode(responseMsg)
-		message := "Invalid body"
-		response.Message = message
-		response.Status = status
-		response.Code = responseMsg
-		return response, err
+	if err := json.Unmarshal(body, &post); err != nil {
+		return types.DefaultResponseMessage[types.Post]{
+			Code:    enums.BadRequestInvalidBody,
+			Status:  enums.MapToStatusCode(enums.BadRequestInvalidBody),
+			Message: types.Post{},
+		}, err
 	}
 
-	if post.Content == "" {
-		message := "No content provided"
-		err = errors.New(string(types.BadRequestInvalidBody))
-		responseMsg = types.BadRequestInvalidBody
-		status = types.MapToStatusCode(responseMsg)
-		response.Message = message
-		response.Status = status
-		response.Code = responseMsg
-		return response, err
+	postRepo, err := repositories.NewGormPostRepository(db.DB)
+	if err != nil {
+		code := enums.InternalServerError
+		return types.DefaultResponseMessage[types.Post]{
+			Code:    code,
+			Status:  enums.MapToStatusCode(code),
+			Message: types.Post{},
+		}, err
 	}
 
-	log.Printf("body received to create post\n%s", body)
-	if post.Title == nil {
-		post.Title = "No title"
+	postValidtor, err := valiation.NewPostValiddor(&post)
+	if err != nil {
+		code := enums.InternalServerError
+		return types.DefaultResponseMessage[types.Post]{
+			Code:    code,
+			Status:  enums.MapToStatusCode(code),
+			Message: types.Post{},
+		}, err
 	}
 
-	if post.Title == "abc" { // should check against the database
-		message := "Post already exists"
-		err = errors.New(string(types.AlreadyExists))
-		responseMsg = types.AlreadyExists
-		status = types.MapToStatusCode(responseMsg)
-		response.Message = message
-		response.Status = status
-		response.Code = responseMsg
-		return response, err
+	postService := services.NewPostService(postRepo, postValidtor)
+	maybePost, err := postService.CreateMewPost(&post)
+
+	if err != nil {
+		errCode := err.Error()
+		switch errCode {
+		case string(enums.ValidtorInvalidIdFormat):
+			code := enums.BadRequestInvalidBody
+			return types.DefaultResponseMessage[types.Post]{
+				Code:    code,
+				Status:  enums.MapToStatusCode(code),
+				Message: types.Post{},
+			}, err
+		case string(enums.ValidtorNoPostRecived):
+		case string(enums.ValidtorEmptyTitle):
+		case string(enums.ValidtorEmptyContent):
+			code := enums.BadRequestInvalidBody
+			return types.DefaultResponseMessage[types.Post]{
+				Code:    code,
+				Status:  enums.MapToStatusCode(code),
+				Message: types.Post{},
+			}, err
+		default:
+			code := enums.InternalServerError
+			return types.DefaultResponseMessage[types.Post]{
+				Code:    code,
+				Status:  enums.MapToStatusCode(code),
+				Message: types.Post{},
+			}, err
+		}
 	}
-
-	responseMsg = types.Created
-	status = types.MapToStatusCode(responseMsg)
-	message := post
-	response.Message = message
-	response.Status = status
-	response.Code = responseMsg
-
-	return response, nil
+	code := enums.Created
+	return types.DefaultResponseMessage[types.Post]{
+		Code:    code,
+		Status:  enums.MapToStatusCode(code),
+		Message: *maybePost,
+	}, nil
 }
