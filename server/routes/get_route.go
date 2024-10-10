@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"server/api"
+	"server/enums"
 	"server/hepers"
-	"server/types"
 
 	echo "github.com/labstack/echo/v4"
 )
@@ -19,20 +19,20 @@ func GetPostById(c echo.Context) error {
 	responseStatus := response.ResponseStatus()
 
 	switch responseCode {
-	case types.NoIdProvided:
-		hepers.Log("no id provided to find post", &err, types.Error)
+	case enums.NoIdProvided:
+		hepers.Log("no id provided to find post", &err, enums.Error)
 		return c.JSON(responseStatus, response)
-	case types.NotFound:
-		hepers.Log(fmt.Sprintf("the id %s was not found on thisserver", id), &err, types.Error)
+	case enums.NotFound:
+		hepers.Log(fmt.Sprintf("the id %s was not found on thisserver", id), &err, enums.Error)
 		return c.JSON(responseStatus, response)
-	case types.Success:
-		hepers.Log(fmt.Sprintf("debugging clause for get post by id:\n %v", id), nil, types.Info)
+	case enums.Success:
+		hepers.Log(fmt.Sprintf("debugging clause for get post by id:\n %v", id), nil, enums.Info)
 		return c.JSON(responseStatus, response)
-	case types.InternalServerError:
-		hepers.Log(fmt.Sprintf(`error when founding post with id %s`, id), &err, types.Error)
+	case enums.InternalServerError:
+		hepers.Log(fmt.Sprintf(`error when founding post with id %s`, id), &err, enums.Error)
 		return c.JSON(responseStatus, response)
 	default:
-		hepers.Log(fmt.Sprintf("interal server error when founding post with id %s", id), &err, types.Error)
+		hepers.Log(fmt.Sprintf("interal server error when founding post with id %s", id), &err, enums.Error)
 		return c.JSON(responseStatus, response)
 	}
 }

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 	"server/api"
+	"server/enums"
 	"server/hepers"
-	"server/types"
 
 	echo "github.com/labstack/echo/v4"
 )
@@ -13,28 +13,28 @@ import (
 func CreatePost(c echo.Context) error {
 	body, err := io.ReadAll(c.Request().Body)
 	if err != nil {
-		hepers.Log("error reading request body", &err, types.Error)
+		hepers.Log("error reading request body", &err, enums.Error)
 		return err
 	}
-	response, err := api.CreatePost(body)
+	response, err := api.CreateAPost(body)
 	responseCode := response.ResponseCode()
 	responseStatus := response.ResponseStatus()
 
 	switch responseCode {
-	case types.BadRequestInvalidBody:
-		hepers.Log("error reading request body", &err, types.Error)
+	case enums.BadRequestInvalidBody:
+		hepers.Log("error reading request body", &err, enums.Error)
 		return c.JSON(responseStatus, response)
-	case types.Created:
-		hepers.Log(fmt.Sprintf("created post with body %s", string(body)), nil, types.Info)
+	case enums.Created:
+		hepers.Log(fmt.Sprintf("created post with body %s", string(body)), nil, enums.Info)
 		return c.JSON(responseStatus, response)
-	case types.AlreadyExists:
-		hepers.Log(fmt.Sprintf("post with body %s had a duplicat contente", string(body)), &err, types.Error)
+	case enums.AlreadyExists:
+		hepers.Log(fmt.Sprintf("post with body %s had a duplicat contente", string(body)), &err, enums.Error)
 		return c.JSON(responseStatus, response)
-	case types.InternalServerError:
-		hepers.Log("internal server error when creating a new post", nil, types.Error)
+	case enums.InternalServerError:
+		hepers.Log("internal server error when creating a new post", nil, enums.Error)
 		return c.JSON(responseStatus, response)
 	default:
-		hepers.Log(fmt.Sprintf("created post with body %s", string(body)), nil, types.Info)
+		hepers.Log(fmt.Sprintf("created post with body %s", string(body)), nil, enums.Info)
 		return c.JSON(responseStatus, response)
 	}
 }

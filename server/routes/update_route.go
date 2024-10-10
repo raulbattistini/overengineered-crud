@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 	"server/api"
+	"server/enums"
 	"server/hepers"
-	"server/types"
 
 	echo "github.com/labstack/echo/v4"
 )
@@ -14,7 +14,7 @@ func UpdatePostById(c echo.Context) error {
 	id := c.QueryParam("id")
 	body, err := io.ReadAll(c.Request().Body)
 	if err != nil {
-		hepers.Log("error reading request body", &err, types.Error)
+		hepers.Log("error reading request body", &err, enums.Error)
 		return err
 	}
 
@@ -24,8 +24,8 @@ func UpdatePostById(c echo.Context) error {
 	responseStatus := response.ResponseStatus()
 
 	switch responseCode {
-	case types.NonAuthoritativeUpdated:
-		hepers.Log(fmt.Sprintf("atualized pot with id %s to content %s", id, string(body)), nil, types.Info)
+	case enums.NonAuthoritativeUpdated:
+		hepers.Log(fmt.Sprintf("atualized pot with id %s to content %s", id, string(body)), nil, enums.Info)
 		return c.JSON(responseStatus, response)
 	default:
 		return c.JSON(responseStatus, response)
