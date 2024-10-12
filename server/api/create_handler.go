@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"server/db"
 	"server/enums"
+	"server/hepers"
 	"server/repositories"
 	"server/services"
 	"server/types"
@@ -20,27 +21,14 @@ func CreateAPost(body []byte) (types.DefaultResponseMessage[types.Post], error) 
 		}, err
 	}
 
-	postRepo, err := repositories.NewGormPostRepository(db.DB)
-	if err != nil {
-		code := enums.InternalServerError
-		return types.DefaultResponseMessage[types.Post]{
-			Code:    code,
-			Status:  enums.MapToStatusCode(code),
-			Message: types.Post{},
-		}, err
-	}
+	postRepo := repositories.NewGormPostRepository(db.DB)
 
-	postValidtor, err := valiation.NewPostValiddor(&post)
-	if err != nil {
-		code := enums.InternalServerError
-		return types.DefaultResponseMessage[types.Post]{
-			Code:    code,
-			Status:  enums.MapToStatusCode(code),
-			Message: types.Post{},
-		}, err
-	}
+	postValidtor := valiation.NewPostValiddor(&post)
 
-	postService := services.NewPostService(postRepo, postValidtor)
+	postLogger := hepers.NewLogger()
+
+	postService := services.NewPostService(postRepo, postValidtor, postLogger)
+
 	maybePost, err := postService.CreateMewPost(&post)
 
 	if err != nil {
