@@ -2,8 +2,8 @@ package types
 
 type Post struct {
 	Id      int         `json:"id" gorm:"primary_key"`
-	Title   interface{} `json:"title,omitempty" gorm:"default:'No title'"`
-	Content string      `json:"content" gorm:"not null"`
+	Title   interface{} `json:"title,omitempty" gorm:"type:text;default:'No title'"`
+	Content string      `json:"content" gorm:"type:text;not null"`
 }
 
 func (p *Post) GetId() int {
