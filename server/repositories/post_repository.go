@@ -1,8 +1,7 @@
 package repositories
 
 import (
-	"server/enums"
-	"server/hepers"
+	"log"
 	"server/types"
 
 	"gorm.io/gorm"
@@ -19,11 +18,11 @@ type GormPostRepository struct {
 	Database *gorm.DB
 }
 
-func NewGormPostRepository(db *gorm.DB) (*GormPostRepository, error) {
+func NewGormPostRepository(db *gorm.DB) *GormPostRepository {
 	if db == nil {
-		return nil, hepers.NewErrorFromMessage(string(enums.RepositoryConnectionNotFound))
+		return nil
 	}
-	return &GormPostRepository{Database: db}, nil
+	return &GormPostRepository{Database: db.Table("posts")}
 }
 
 func (r *GormPostRepository) FindById(id string) (*types.Post, error) {
@@ -40,6 +39,7 @@ func (r *GormPostRepository) UpdatePost(post *types.Post) error {
 
 func (r *GormPostRepository) CreatePost(post *types.Post) (*types.Post, error) {
 	if err := r.Database.Save(&post).Error; err != nil {
+		log.Println("error\n", err)
 		return nil, err
 	}
 	return post, nil

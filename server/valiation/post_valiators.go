@@ -18,11 +18,8 @@ type ValidtorPostType struct {
 	Post *types.Post
 }
 
-func NewPostValiddor(pst *types.Post) (*ValidtorPostType, error) {
-	if pst == nil {
-		return nil, hepers.NewErrorFromMessage(string(enums.ValidtorNoPostRecived))
-	}
-	return &ValidtorPostType{Post: pst}, nil
+func NewPostValiddor(pst *types.Post) *ValidtorPostType {
+	return &ValidtorPostType{Post: pst}
 }
 
 // mock ed
