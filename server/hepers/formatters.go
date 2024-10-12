@@ -9,6 +9,8 @@ import (
 	"time"
 	"unicode"
 
+	"github.com/google/uuid"
+	// "go.mongodb.org/mongo-driver/internal/uuid"
 	"golang.org/x/text/unicode/norm"
 )
 
@@ -41,6 +43,10 @@ func GenRandomPostContent(length int) string {
 	}
 
 	return string(b)
+}
+
+func GenUuidStr() string {
+	return uuid.New().String()
 }
 
 func CleanAllInput(input string) string {

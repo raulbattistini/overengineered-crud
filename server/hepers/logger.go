@@ -8,6 +8,42 @@ import (
 	zap "go.uber.org/zap"
 )
 
+type LoggerInterface interface {
+	LogError(message *string, err error)
+	LogDebug(message string)
+	LogInfo(message string)
+	LogWarn(message string)
+}
+
+type Logger struct {
+	Loggr *zap.Logger
+}
+
+func NewLogger() *Logger {
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
+
+	return &Logger{
+		Loggr: logger,
+	}
+}
+
+func (l *Logger) LogError(message *string, err error) {
+	l.Loggr.Error(*message, zap.Error(err))
+}
+
+func (l *Logger) LogDebug(message string) {
+	l.Loggr.Debug(message)
+}
+
+func (l *Logger) LogInfo(message string) {
+	l.Loggr.Info(message)
+}
+
+func (l *Logger) LogWarn(message string) {
+	l.Loggr.Warn(message)
+}
+
 // ou msg seria map[string]interface{}
 func Log(msg interface{}, err *error, level enums.LogLevels) {
 	/* contorno mal feito */
