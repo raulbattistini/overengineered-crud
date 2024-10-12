@@ -3,6 +3,8 @@ module server
 go 1.23.1
 
 require (
+	github.com/go-gormigrate/gormigrate/v2 v2.1.3
+	github.com/google/uuid v1.6.0
 	github.com/labstack/echo/v4 v4.12.0
 	go.mongodb.org/mongo-driver v1.17.0
 	go.uber.org/zap v1.27.0
