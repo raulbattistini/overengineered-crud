@@ -8,6 +8,7 @@ import (
 	"server/context"
 	_ "server/context"
 	"server/db"
+	"server/db/migrations"
 	"server/enums"
 	"server/hepers"
 	"server/routes"
@@ -22,8 +23,11 @@ func main() {
 		hepers.Log(err.Error(), &err, enums.Error)
 	}
 
-	_, err = db.Connect(&config.DbConfig)
+	database, err := db.Connect(&config.DbConfig)
 	if err != nil {
+		hepers.Log(err.Error(), &err, enums.Error)
+	}
+	if err := migrations.RunMigrations(database); err != nil {
 		hepers.Log(err.Error(), &err, enums.Error)
 	}
 
