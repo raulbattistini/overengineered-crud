@@ -22,7 +22,7 @@ func NewGormPostRepository(db *gorm.DB) *GormPostRepository {
 	if db == nil {
 		return nil
 	}
-	return &GormPostRepository{Database: db.Table("posts")}
+	return &GormPostRepository{Database: db}
 }
 
 func (r *GormPostRepository) FindById(id string) (*types.Post, error) {

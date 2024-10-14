@@ -1,0 +1,59 @@
+// wrong, "props drilling"
+// trying factories for "scaling"
+type Repository interface {
+	CreateNewRepository(db gorm.DB) GormRepository
+}
+
+type Repo interface {
+	CreateRepo() GormRepository
+}
+
+type UserRepo struct{}
+type PostRepo struct{}
+
+func (ur *UserRepo) CreateNewRepository(db gorm.DB) GormRepository {
+	return GormRepository{Database: db.Table("posts")}
+}
+
+func (ur *UserRepo) CreateRepo() GormRepository {
+	return GormRepository{Database: db.DB.Table("posts")}
+}
+
+func (pr *PostRepo) CreateNewRepository(db gorm.DB) GormRepository {
+	return GormRepository{Database: db.Table("posts")}
+}
+
+func (pr *PostRepo) CreateRepo() GormRepository {
+	return GormRepository{Database: db.DB.Table("posts")}
+}
+
+type RepositoryFactory interface {
+	CreateRepository(db gorm.DB) Repository
+	CreateRepoFactory() Repo
+}
+
+type UserRepositoryFactory struct{}
+type UserRepoFactory struct{}
+
+type PostRepositoryFactory struct{}
+type PostRepoFactory struct{}
+
+func (uf *UserRepositoryFactory) CreateRepository(db gorm.DB) Repository {
+	return &Repository{&UserRepo{}}
+}
+
+func (urf *UserRepoFactory) CreateRepoFactory() Repo {
+	return &Repo{}
+}
+
+func (pf *PostRepositoryFactory) CreateRepository(db gorm.DB) *Repository {
+	return &Repository{}
+}
+
+func (prf *PostRepoFactory) CreateRepoFactory() Repo {
+	return &Repo{}
+}
+
+type GormRepository struct {
+	Database *gorm.DB
+}

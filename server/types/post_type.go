@@ -6,6 +6,10 @@ type Post struct {
 	Content string      `json:"content" gorm:"type:text;not null"`
 }
 
+func (p *Post) TableName() string {
+	return "posts"
+}
+
 func (p *Post) GetId() int {
 	return p.Id
 }
